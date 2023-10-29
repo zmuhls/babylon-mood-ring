@@ -1,6 +1,6 @@
 # babylon-mood-ring
 
-[Babylon Mood-Ring](https://zmuhls.github.io/babylon-mood-ring/) styles and randomizes shards of language from "Frozen Custard in the City of Babylon" — a poem I wrote about one decade ago and had no use for, really, until now. 
+[Babylon Mood Ring](https://zmuhls.github.io/babylon-mood-ring/) styles and randomizes shards of language from "Frozen Custard in the City of Babylon" — a poem I wrote about one decade ago and had no use for, really, until now. 
 
 I've created the site to scramble the poem's linear presentation in favor of a more dynamic and stochastic reading experience. To do this, the site reveals lines at different screen coordinates and shifting colors, mapping the poem's nonlinear and fractured approach to memory and self to the level of staging and design. Sampling random verses and styling text in accordance with changing moods formally mimics the impermanence and randomness of memories long past and over.
 
