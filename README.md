@@ -8,6 +8,6 @@ The thinking here comes in part from the Oulipo group, a loose band of experimen
 
 ## Related and Work-in-Progress Webtexts
 
-1. **Star Cipher**
+1. [**Star Cipher**](https://github.com/zmuhls/babylon-mood-ring/blob/main/star_cipher.html)
 
-2. **Dictionary of Babel**
+2. [**Dictionary of Babel**](https://github.com/zmuhls/babylon-mood-ring/blob/main/star_cipher.html)
