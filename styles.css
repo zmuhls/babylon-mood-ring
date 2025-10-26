@@ -1,3 +1,9 @@
+/* ====================================
+   Performance Optimizations
+   ==================================== */
+* {
+    box-sizing: border-box;
+}
 
 body {
     margin: 0;
@@ -9,41 +15,51 @@ body {
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    overflow: hidden;
 }
 
 h1 {
-    font-size: 2.0rem;                /* Moderately large title */
-    color: #ffd900a4;                   /* Golden color */
-    font-weight: normal;              /* Regular font weight for a less imposing look */
-    letter-spacing: 2px;             /* Mild spacing between letters */
-    text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.215); /* Soft shadow for depth */
-    margin-top: 20px;                /* Space at the top */
-    background-color: rgba(0, 0, 0, 0.868); /* Slight transparency for a less imposing look */
-    padding: 5px 10px;               /* Mild padding around the text */
-    border-radius: 3px;              /* Slightly rounded corners */
-    position: absolute;              /* Absolute positioning */
-    top: 10px;                       /* Positioning it near the top */
-    left: 50%;                       /* Centering it horizontally */
-    transform: translateX(-50%);     /* Ensuring it's perfectly centered */
+    font-size: 2.0rem;
+    color: #ffd900a4;
+    font-weight: normal;
+    letter-spacing: 2px;
+    text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.215);
+    margin-top: 20px;
+    background-color: rgba(0, 0, 0, 0.868);
+    padding: 5px 10px;
+    border-radius: 3px;
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%) translateZ(0); /* Hardware acceleration */
+    will-change: transform; /* Optimize for transform changes */
+    backface-visibility: hidden; /* Prevent flickering */
 }
 
 @media (max-width: 768px) {
     h1 {
-        font-size: 2.0rem;                /* Adjusted font size for smaller screens */
-        padding: 5px;                   /* Adjusted padding for smaller screens */
+        font-size: 2.0rem;
+        padding: 5px;
     }
 }
 
 #poetryDisplay {
-    font-size: 2.0rem;                /* Enlarged font size for the poem */
-    transition: color 1s, transform 1.5s;
-    transform: scale(1);
+    font-size: 2.0rem;
     text-align: center;
     max-width: 90vw;
-    z-index: 1;                      /* Ensuring the poem overlays on other elements if they overlap */
-    overflow: hidden;                /* Preventing overflow */
+    z-index: 1;
+    overflow: hidden;
+
+    /* Performance optimizations */
+    will-change: color, transform;
+    backface-visibility: hidden;
+    transform: scale(1) translateZ(0); /* Hardware acceleration */
+
+    /* Smooth transitions */
+    transition: color 1s ease-out, transform 1.5s ease-out;
 }
 
+/* Hover effect with optimized transform */
 body:hover #poetryDisplay {
-    transform: scale(1.1);
+    transform: scale(1.1) translateZ(0);
 }
