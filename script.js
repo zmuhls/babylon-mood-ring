@@ -1,5 +1,16 @@
-const poetryDisplay = document.getElementById('poetryDisplay');
+// ====================================
+// Configuration Constants
+// ====================================
+const CONFIG = {
+    // Minimum distance (in pixels) before triggering an update
+    MOVEMENT_THRESHOLD: 15,
+    // Color change sensitivity (0-1, lower = less sensitive)
+    COLOR_THRESHOLD: 0.02
+};
 
+// ====================================
+// Poem Data
+// ====================================
 const poems = [
     "frozen custard in the city of babylon by zach muhlbauer",
     "heaven-spotted, sand-blown, the nightingale croons out one last tune",
@@ -22,14 +33,14 @@ const poems = [
     "sure you knew nothing else or otherwise, brought up by those who know your cries",
     "as babble, cough, hiccup, cry, coo, cry, and tears",
     "a wee-little sneeze in the mist of the jabberwocky",
-    "not long ‘til you think teenage thoughts, clip-clap, clippity-clap",
+    "not long 'til you think teenage thoughts, clip-clap, clippity-clap",
     "of the red ace of hearts drumming at the bicycle spokes",
     "your second spoke-card in two days, frayed, wet, and spindly hot",
     "in the humid glaze of summer with your torn-to-be ace of hearts",
     "babbling on and on, whittling down its plastic encasing",
     "until only the paper remains and rips in two as you lay on the brakes",
     "and you turn for home",
-    "mister, mister, I’ll have, I’ll have one sour-cherry custard",
+    "mister, mister, I'll have, I'll have one sour-cherry custard",
     "…now, honey, what do we say? pleaaaaaaase!",
     "what a windy day, you think, with a bid... sorting stray socks into pairs",
     "sorting outside over inside, often with a side-long glance at the windowpane",
@@ -58,7 +69,7 @@ const poems = [
     "your one and only scoop having melted into pigeon-feed while the vultures of the moira",
     "were snip-snipping at your synapse, a flock of decomposing birds of flight",
     "turned to circus in one sad second",
-    "looking back, you aren’t the least bit shocked",
+    "looking back, you aren't the least bit shocked",
     "after all, nothing ever changes, nothing but the lot of it",
     "puddling out of you like egg yolk",
     "you are not what breaks you",
@@ -68,8 +79,8 @@ const poems = [
     "looking back for the word, for its sound and its meaning",
     "for that trickle from the bottom of the boardwalk, like a knock-knock",
     "a bark-and-growl, like the marrow of your spine gone plop",
-    "now, you’ve grown deaf to the unnamable, an adult, twice as old",
-    "as your mother when she didn’t hear you cry that day",
+    "now, you've grown deaf to the unnamable, an adult, twice as old",
+    "as your mother when she didn't hear you cry that day",
     "adults, like you — they fumigate their gingivitis with prepackaged oils",
     "spilled over cavernous cheeks of fissure and flesh",
     "foaming and frothing like frogs in an airtight box",
@@ -86,14 +97,134 @@ const poems = [
     "from that boardwalk down in the city of babylon where you left it all behind"
 ];
 
+// ====================================
+// State Management
+// ====================================
+class MoodRing {
+    constructor(element) {
+        this.element = element;
+        this.lastX = 0;
+        this.lastY = 0;
+        this.lastColorRatios = { r: 0, g: 0, b: 0 };
+        this.ticking = false;
+        this.currentPoemIndex = -1;
 
-document.addEventListener('mousemove', (e) => {
-    const xRatio = e.clientX / window.innerWidth;
-    const yRatio = e.clientY / window.innerHeight;
+        // Cache dimensions for performance
+        this.updateDimensions();
+        window.addEventListener('resize', () => this.updateDimensions());
+    }
 
-    const randomIndex = Math.floor(Math.random() * poems.length);
-    const poem = poems[randomIndex];
+    updateDimensions() {
+        this.width = window.innerWidth;
+        this.height = window.innerHeight;
+    }
 
-    poetryDisplay.textContent = poem;
-    poetryDisplay.style.color = `rgb(${Math.floor(xRatio * 255)}, ${Math.floor(yRatio * 255)}, ${Math.floor((1 - xRatio + yRatio) * 255)})`;
+    /**
+     * Calculate color based on mouse position
+     * Returns RGB values optimized for mood ring effect
+     */
+    calculateColor(xRatio, yRatio) {
+        // Optimized color calculation using bitwise operations where possible
+        const r = (xRatio * 255) | 0;
+        const g = (yRatio * 255) | 0;
+        // Enhanced blue calculation for more vibrant colors
+        const b = ((1 - xRatio + yRatio) * 127.5) | 0;
+
+        return { r, g, b };
+    }
+
+    /**
+     * Check if color change is significant enough to warrant an update
+     */
+    shouldUpdateColor(newColor) {
+        const threshold = CONFIG.COLOR_THRESHOLD * 255;
+        return Math.abs(newColor.r - this.lastColorRatios.r) > threshold ||
+               Math.abs(newColor.g - this.lastColorRatios.g) > threshold ||
+               Math.abs(newColor.b - this.lastColorRatios.b) > threshold;
+    }
+
+    /**
+     * Check if mouse movement is significant enough to warrant an update
+     */
+    shouldUpdatePosition(x, y) {
+        const dx = x - this.lastX;
+        const dy = y - this.lastY;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        return distance > CONFIG.MOVEMENT_THRESHOLD;
+    }
+
+    /**
+     * Select a random poem different from the current one
+     */
+    selectRandomPoem() {
+        let newIndex;
+        do {
+            newIndex = Math.floor(Math.random() * poems.length);
+        } while (newIndex === this.currentPoemIndex && poems.length > 1);
+
+        this.currentPoemIndex = newIndex;
+        return poems[newIndex];
+    }
+
+    /**
+     * Update the display with new poem and color
+     */
+    update(x, y) {
+        // Calculate ratios once
+        const xRatio = x / this.width;
+        const yRatio = y / this.height;
+
+        // Calculate new color
+        const newColor = this.calculateColor(xRatio, yRatio);
+
+        // Only update position if movement is significant
+        const shouldUpdatePos = this.shouldUpdatePosition(x, y);
+
+        // Only update color if change is significant
+        const shouldUpdateCol = this.shouldUpdateColor(newColor);
+
+        if (shouldUpdatePos || shouldUpdateCol) {
+            // Update poem on significant position change
+            if (shouldUpdatePos) {
+                this.element.textContent = this.selectRandomPoem();
+                this.lastX = x;
+                this.lastY = y;
+            }
+
+            // Update color
+            if (shouldUpdateCol) {
+                this.element.style.color = `rgb(${newColor.r}, ${newColor.g}, ${newColor.b})`;
+                this.lastColorRatios = newColor;
+            }
+        }
+
+        this.ticking = false;
+    }
+
+    /**
+     * Request an update using requestAnimationFrame for optimal performance
+     */
+    requestUpdate(x, y) {
+        if (!this.ticking) {
+            this.ticking = true;
+            requestAnimationFrame(() => this.update(x, y));
+        }
+    }
+}
+
+// ====================================
+// Initialization
+// ====================================
+document.addEventListener('DOMContentLoaded', () => {
+    const poetryDisplay = document.getElementById('poetryDisplay');
+    const moodRing = new MoodRing(poetryDisplay);
+
+    // Set initial poem
+    poetryDisplay.textContent = poems[0];
+    moodRing.currentPoemIndex = 0;
+
+    // Throttled mousemove handler using requestAnimationFrame
+    document.addEventListener('mousemove', (e) => {
+        moodRing.requestUpdate(e.clientX, e.clientY);
+    }, { passive: true });
 });
